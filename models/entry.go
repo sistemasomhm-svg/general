@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 // Entry representa la estructura que viaja entre cliente y servidor
 type Entry struct {
 	ID            string    `json:"id"`
