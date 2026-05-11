@@ -53,8 +53,18 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Obtener el usuario recién creado para el ID
+	user, _ := h.authService.GetSalt(r.Context(), req.Email) // Solo para verificar existencia, pero necesitamos el ID
+	// Mejor: Modificar Register para que devuelva el token. 
+	// Por ahora hacemos un login interno simplificado.
+	token, _ := h.authService.Login(r.Context(), req.Email, req.AuthHash)
+
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"message": "User registered successfully"})
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "User registered successfully",
+		"token":   token,
+	})
 }
 
 func (h *AuthHandler) GetSalt(w http.ResponseWriter, r *http.Request) {
