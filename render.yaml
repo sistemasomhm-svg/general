@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: vault-api
+    env: docker
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon # Puedes cambiarlo a tu región preferida
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GIN_MODE
+        value: release

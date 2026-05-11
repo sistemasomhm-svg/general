@@ -1,0 +1,23 @@
+{
+    email {$ACME_EMAIL}
+}
+
+{$DOMAIN_NAME} {
+    reverse_proxy vault-api:8080 {
+        # Soporte para WebSockets
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+    }
+
+    log {
+        output file /data/caddy_access.log
+    }
+
+    # Seguridad adicional
+    header {
+        Strict-Transport-Security "max-age=31536000;"
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy no-referrer-when-downgrade
+    }
+}

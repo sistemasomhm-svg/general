@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:latest
+    container_name: vault-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - vault-public
+    depends_on:
+      - api
+
+  db:
+    image: postgres:15-alpine
+    container_name: vault-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: vault_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - vault-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d vault_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vault-api
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/vault_db?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET}
+      GO_ENV: production
+    networks:
+      - vault-internal
+      - vault-public
+
+networks:
+  vault-internal:
+    internal: true
+  vault-public:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
