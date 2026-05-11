@@ -65,6 +65,10 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Vault API is running"))
+	})
 
 	// 6. Iniciar Servidor con Graceful Shutdown
 	port := os.Getenv("PORT") // Render usa esta variable
