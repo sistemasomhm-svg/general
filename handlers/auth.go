@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"vault-backend/services"
 )
@@ -49,13 +50,19 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	err := h.authService.Register(r.Context(), req.Email, req.AuthHash, req.ClientSalt)
 	if err != nil {
+		slog.Error("Error en registro", "error", err, "email", req.Email)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Mejor: Modificar Register para que devuelva el token. 
 	// Por ahora hacemos un login interno simplificado.
-	token, _ := h.authService.Login(r.Context(), req.Email, req.AuthHash)
+	token, loginErr := h.authService.Login(r.Context(), req.Email, req.AuthHash)
+	if loginErr != nil {
+		slog.Error("Error en login tras registro", "error", loginErr, "email", req.Email)
+		http.Error(w, loginErr.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
