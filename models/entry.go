@@ -8,7 +8,7 @@ type Entry struct {
 	EncryptedData string    `json:"encrypted_data"`
 	Version       int64     `json:"version"`
 	IsDeleted     bool      `json:"is_deleted"`
-	UpdatedAt     time.Time `json:"updated_at,omitempty"`
+	UpdatedAt     string    `json:"updated_at,omitempty"`
 }
 
 type SyncRequest struct {

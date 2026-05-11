@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 	"vault-backend/models"
 	"vault-backend/repositories"
 
@@ -63,7 +64,7 @@ func (s *SyncService) ProcessSync(ctx context.Context, userID string, req models
 			EncryptedData: se.EncryptedData,
 			Version:       se.Version,
 			IsDeleted:     se.IsDeleted,
-			UpdatedAt:     se.UpdatedAt,
+			UpdatedAt:     se.UpdatedAt.Format(time.RFC3339),
 		})
 	}
 
