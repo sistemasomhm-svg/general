@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -35,6 +36,10 @@ func ConnectDB() {
 	if err != nil {
 		log.Fatalf("Error parseando la configuración de DB: %v", err)
 	}
+
+	// IMPORTANTE: Desactivar prepared statements para compatibilidad con PGBouncer (Supabase)
+	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
+	// En pgx v5, se usa el modo simple para evitar errores 42P05 en transacciones de proxy (PGBouncer).
 
 	config.MaxConns = 25
 	config.MinConns = 5
