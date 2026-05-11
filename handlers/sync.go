@@ -18,7 +18,8 @@ func NewSyncHandler(syncService *services.SyncService) *SyncHandler {
 func (h *SyncHandler) Sync(w http.ResponseWriter, r *http.Request) {
 	var req models.SyncRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Error decodificando request", http.StatusBadRequest)
+		slog.Error("Fallo al decodificar SyncRequest", "error", err)
+		http.Error(w, "Error decodificando request: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
