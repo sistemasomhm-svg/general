@@ -23,7 +23,7 @@ func (s *AuthService) Login(ctx context.Context, email, authHash string) (string
 	}
 
 	if user == nil {
-		return "", fmt.Errorf("credenciales inválidas")
+		return "", fmt.Errorf("usuario no encontrado")
 	}
 
 	// Verificar AuthHash contra el StoredHash en DB
@@ -41,7 +41,35 @@ func (s *AuthService) Login(ctx context.Context, email, authHash string) (string
 	return token, nil
 }
 
-func (s *AuthService) Register(ctx context.Context, user *models.User) error {
-	// Lógica adicional de validación si es necesario
+func (s *AuthService) GetSalt(ctx context.Context, email string) (string, error) {
+	user, err := s.userRepo.FindByEmail(ctx, email)
+	if err != nil {
+		return "", err
+	}
+	if user == nil {
+		return "", fmt.Errorf("usuario no existe")
+	}
+	return user.ClientSalt, nil
+}
+
+func (s *AuthService) Register(ctx context.Context, email, authHash, clientSalt string) error {
+	// Verificar si ya existe
+	existing, _ := s.userRepo.FindByEmail(ctx, email)
+	if existing != nil {
+		return fmt.Errorf("el usuario ya está registrado")
+	}
+
+	// Hashear el authHash para guardarlo de forma segura (doble hashing)
+	hashedAuth, err := security.HashPassword(authHash)
+	if err != nil {
+		return err
+	}
+
+	user := &models.User{
+		Email:      email,
+		AuthHash:   hashedAuth,
+		ClientSalt: clientSalt,
+	}
+
 	return s.userRepo.Create(ctx, user)
 }

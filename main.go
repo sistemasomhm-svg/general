@@ -51,6 +51,8 @@ func main() {
 
 	// Rutas públicas
 	mux.HandleFunc("/api/login", authHandler.Login)
+	mux.HandleFunc("/api/register", authHandler.Register)
+	mux.HandleFunc("/api/salt", authHandler.GetSalt)
 
 	// Rutas protegidas (Requieren JWT)
 	mux.Handle("/api/sync", middleware.AuthMiddleware(http.HandlerFunc(syncHandler.Sync)))
