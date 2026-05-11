@@ -6,6 +6,7 @@ import (
 	"vault-backend/models"
 	"vault-backend/repositories"
 	"vault-backend/security"
+	"github.com/google/uuid"
 )
 
 type AuthService struct {
@@ -66,6 +67,7 @@ func (s *AuthService) Register(ctx context.Context, email, authHash, clientSalt 
 	}
 
 	user := &models.User{
+		ID:         uuid.New(),
 		Email:      email,
 		AuthHash:   hashedAuth,
 		ClientSalt: clientSalt,
